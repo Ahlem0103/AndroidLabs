@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),
                     getResources().getString(R.string.toast_message), Toast.LENGTH_SHORT).show();
         });
-        boolean isProgrammaticChange = false;
         checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             String message = isChecked ?
                     getResources().getString(R.string.checkbox_status_on) :
