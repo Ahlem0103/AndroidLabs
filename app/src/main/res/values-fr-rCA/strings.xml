@@ -2,4 +2,14 @@
 <resources>
     <string name="hello_world">Bonjour le monde</string>
     <string name="button_text">Je suis un bouton!</string>
+    <string name="love_android">Android Love</string>
+    <string name="switch_text">Activer/Desactiver</string>
+    <string name="toast_message">Letiquette a ete mise a jour</string>
+    <string name="undo">Annuler</string>
+    <string name="edittext_hint">J\aime Android</string>
+    <string name="checkbox_status_on">La case est activee</string>
+    <string name="checkbox_status_off">La case est desactivee</string>
+    <string name="press_me">Appuyez moi</string>
+    <string name="check_this">Regardez ca</string>
+    <string name="ImageDescription">Drapeau Francais</string>
 </resources>

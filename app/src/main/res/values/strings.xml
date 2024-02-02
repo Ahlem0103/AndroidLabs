@@ -2,4 +2,16 @@
     <string name="app_name" translatable="false">AndroidLabs</string>
     <string name="hello_world">Hello World</string>
     <string name="button_text">I\m a button!</string>
+    <string name="love_android">Android Love</string>
+    <string name="switch_text">Switch On/Off</string>
+    <string name="toast_message">Label has been updated</string>
+    <string name="undo">Undo</string>
+    <string name="edittext_hint">I love Android</string>
+    <string name="checkbox_status_on">Checkbox On</string>
+    <string name="checkbox_status_off">Checkbox Off</string>
+    <string name="press_me">Press me</string>
+    <string name="check_this">Check this Out!</string>
+    <string name="ImageDescription">American Flag</string>
 </resources>
+
+
