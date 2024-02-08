@@ -6,12 +6,18 @@
     <string name="switch_text">Switch On/Off</string>
     <string name="toast_message">Label has been updated</string>
     <string name="undo">Undo</string>
-    <string name="edittext_hint">I love Android</string>
+    <string name="edittext_hint">Type your name here</string>
     <string name="checkbox_status_on">Checkbox On</string>
     <string name="checkbox_status_off">Checkbox Off</string>
     <string name="press_me">Press me</string>
     <string name="check_this">Check this Out!</string>
     <string name="ImageDescription">American Flag</string>
+    <string name="enter_your_name">Enter your name</string>
+    <string name="next">Next</string>
+    <string name="welcome">Welcome!</string>
+    <string name="thank_you">THANK YOU!</string>
+    <string name="don_call_me_that">DON\t CALL ME THAT</string>
+    <string name="welcome_user">Welcome %1$s!</string>
 </resources>
 
 

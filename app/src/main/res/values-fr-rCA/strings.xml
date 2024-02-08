@@ -6,10 +6,16 @@
     <string name="switch_text">Activer/Desactiver</string>
     <string name="toast_message">Letiquette a ete mise a jour</string>
     <string name="undo">Annuler</string>
-    <string name="edittext_hint">J\aime Android</string>
+    <string name="edittext_hint">Ecrivez votre nom ici</string>
     <string name="checkbox_status_on">La case est activee</string>
     <string name="checkbox_status_off">La case est desactivee</string>
     <string name="press_me">Appuyez moi</string>
     <string name="check_this">Regardez ca</string>
     <string name="ImageDescription">Drapeau Francais</string>
+    <string name="enter_your_name">Entrez votre nom</string>
+    <string name="next">Suivant</string>
+    <string name="welcome">BIENVENUE!</string>
+    <string name="thank_you">Merci</string>
+    <string name="don_call_me_that">NE MAPPELEZ PAS COMME CA</string>
+    <string name="welcome_user">Bienvenue %1$s!</string>
 </resources>

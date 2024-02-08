@@ -1,41 +1,50 @@
 package com.example.androidlabs;
 
 import androidx.appcompat.app.AppCompatActivity;
-import android.os.Bundle;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.android.material.snackbar.Snackbar;
+import android.content.SharedPreferences;
+import android.widget.EditText;
+import android.content.Intent;
+import android.widget.Button;
+import android.os.Bundle;
 
 public class MainActivity extends AppCompatActivity {
+
+    private EditText editTextName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_linear);
+        setContentView(R.layout.activity_main);
 
-        Button pressMeButton = findViewById(R.id.button_press);
-        EditText editText = findViewById(R.id.edittext_love_android);
-        TextView textView = findViewById(R.id.text_view_love_android);
-        CheckBox checkBox = findViewById(R.id.checkbox);
+        editTextName = findViewById(R.id.editTextName);
+        Button buttonNext = findViewById(R.id.buttonNext);
 
-        pressMeButton.setOnClickListener(v -> {
-            String editTextContent = editText.getText().toString();
-            textView.setText(editTextContent);
-            Toast.makeText(getApplicationContext(),
-                    getResources().getString(R.string.toast_message), Toast.LENGTH_SHORT).show();
+        buttonNext.setOnClickListener(v -> {
+            String name = editTextName.getText().toString();
+            Intent intent = new Intent(MainActivity.this, NameActivity.class);
+            intent.putExtra("USER_NAME", name);
+            startActivityForResult(intent, 1);
         });
-        checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            String message = isChecked ?
-                    getResources().getString(R.string.checkbox_status_on) :
-                    getResources().getString(R.string.checkbox_status_off);
-            Snackbar.make(buttonView, message, Snackbar.LENGTH_LONG)
-                    .setAction(getResources().getString(R.string.undo), v ->
-                            checkBox.setChecked(!isChecked))
-                    .show();
-        });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences.Editor editor = getSharedPreferences("MyPrefs", MODE_PRIVATE).edit();
+        editor.putString("name", editTextName.getText().toString());
+        editor.apply();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (resultCode == 0) {
+                editTextName.setText("");
+            } else if (resultCode == 1) {
+                finish();
+            }
+        }
     }
 }
