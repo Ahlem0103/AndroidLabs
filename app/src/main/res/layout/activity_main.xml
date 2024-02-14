@@ -5,28 +5,38 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <ListView
+        android:id="@+id/listViewTodos"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="18sp"
-        android:text="@string/enter_your_name" />
-
-    <EditText
-        android:id="@+id/editTextName"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/edittext_hint"
-        android:inputType="textPersonName"
-        android:minHeight="48dp"
-        android:autofillHints="name"/>
+        android:orientation="horizontal" >
 
-    <Button
-        android:id="@+id/buttonNext"
+        <EditText
+            android:id="@+id/editTextTodo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/hint_type_here"
+            android:autofillHints="none"
+            android:inputType="text"/>
+
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switchUrgent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/next"
-        android:minHeight="48dp"/>
+        android:text="@string/urgent" />
 
+    <Button
+        android:id="@+id/buttonAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add" />
 
+    </LinearLayout>
 </LinearLayout>

@@ -18,4 +18,11 @@
     <string name="thank_you">Merci</string>
     <string name="don_call_me_that">NE MAPPELEZ PAS COMME CA</string>
     <string name="welcome_user">Bienvenue %1$s!</string>
+    <string name="hint_type_here">Tapez Ici</string>
+    <string name="urgent">Urgent</string>
+    <string name="add">Ajoutez</string>
+    <string name="confirm_delete">Confirmation de la Suppression </string>
+    <string name="selected_row">Ligne selectionee: %1$d</string>
+    <string name="delete">Supprimez</string>
+    <string name="cancel">Annulez</string>
 </resources>
