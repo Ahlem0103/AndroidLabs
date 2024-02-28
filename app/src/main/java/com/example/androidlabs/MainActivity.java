@@ -1,103 +1,101 @@
 package com.example.androidlabs;
-import androidx.appcompat.widget.SwitchCompat;
+
+import android.graphics.Bitmap;
 import androidx.appcompat.app.AppCompatActivity;
-import android.app.AlertDialog;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.view.ViewGroup;
-import android.view.LayoutInflater;
-import android.graphics.Color;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    public List<TodoItem> todoItems = new ArrayList<>();
-    private TodoAdapter adapter;
-    private EditText editTextTodo;
-    private SwitchCompat switchUrgent;
 
+    private ImageView imageView;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ListView listView = findViewById(R.id.listViewTodos);
-        editTextTodo = findViewById(R.id.editTextTodo);
-        switchUrgent = findViewById(R.id.switchUrgent);
+        imageView = findViewById(R.id.imageView);
+        progressBar = findViewById(R.id.progressBar);
 
-        Button buttonAdd = findViewById(R.id.buttonAdd);
-
-        adapter = new TodoAdapter();
-        listView.setAdapter(adapter);
-
-        buttonAdd.setOnClickListener(v -> {
-                String text = editTextTodo.getText().toString();
-                boolean isUrgent = switchUrgent.isChecked();
-                if (!text.isEmpty()) {
-                    todoItems.add(0, new TodoItem(text, isUrgent));
-                    adapter.notifyDataSetChanged();
-                    editTextTodo.setText("");
-                }
-        });
-
-        listView.setOnItemLongClickListener((parent, view, position, id) -> {
-            Log.d("MainActivity", "Long click detected on position: " + position);
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle(R.string.confirm_delete)
-                        .setMessage(getString(R.string.selected_row, position))
-                        .setPositiveButton(R.string.delete, (dialog, which) -> {
-                            todoItems.remove(position);
-                            adapter.notifyDataSetChanged();
-                        })
-                        .setNegativeButton(R.string.cancel, null)
-                        .show();
-                return true;
-
-        });
+        //asynctask
+        new CatImages().execute();
     }
 
-    private class TodoAdapter extends BaseAdapter {
-        @Override
-        public int getCount() {
-            return todoItems.size();
-        }
+    //asynctask to download and display images cats
+    private class CatImages extends AsyncTask<String, Integer, Void> {
+        private Bitmap currentCatImage;
 
         @Override
-        public TodoItem getItem(int position) {
-            return todoItems.get(position);
-        }
+        protected Void doInBackground(String... strings) {
+            while (true) {
+                try {
+                    //random cat image from json logic
+                    URL url = new URL("https://cataas.com/cat?json=true");
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestMethod("GET");
+                    InputStream inputStream = connection.getInputStream();
+                    String result = convertStreamToString(inputStream);
+                    JSONObject jsonObject = new JSONObject(result);
 
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
+                    //
+                    if (jsonObject.has("_id")) {
+                        String catImageId = jsonObject.getString("_id");
+                        String catImageUrl = "https://cataas.com/cat/" + catImageId;
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) {
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_todo, parent, false);
+                        //Downlad of cat image
+                        InputStream in = new URL(catImageUrl).openStream();
+                        currentCatImage = BitmapFactory.decodeStream(in);
+                    } else {
+                        //error handling
+                        Log.e("CatImages", "No URL found in the JSON response");
+                    }
+
+                    //update UI
+                    for (int i = 0; i < 100; i++) {
+                        publishProgress(i);
+                        try {
+                            Thread.sleep(30);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            e.printStackTrace();
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            TextView textView = convertView.findViewById(R.id.textViewTodoItem);
-            TodoItem todoItem = getItem(position);
+        }
 
-            textView.setText(todoItem.getText());
-            if (todoItem.isUrgent()) {
-                convertView.setBackgroundColor(Color.RED);
-                textView.setTextColor(Color.WHITE);
-            } else {
-                convertView.setBackgroundColor(Color.WHITE);
-                textView.setTextColor(Color.BLACK);
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            progressBar.setProgress(values[0]);
+            if (values[0] == 0) { //update image
+                imageView.setImageBitmap(currentCatImage);
             }
+        }
 
-            return convertView;
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (imageView != null && currentCatImage != null) {
+                imageView.setImageBitmap(currentCatImage);
+            }
+        }
+
+        //method to convert inputStream to String
+        private String convertStreamToString(InputStream is) {
+            java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+            return s.hasNext() ? s.next() : "";
         }
     }
 }
