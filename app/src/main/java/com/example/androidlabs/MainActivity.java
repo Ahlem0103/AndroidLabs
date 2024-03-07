@@ -1,101 +1,182 @@
 package com.example.androidlabs;
 
-import android.graphics.Bitmap;
-import androidx.appcompat.app.AppCompatActivity;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.LayoutInflater;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.content.Intent;
+import android.widget.FrameLayout;
+
+import androidx.appcompat.app.AppCompatActivity;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ImageView imageView;
-    private ProgressBar progressBar;
+    private ListView listView;
+    private final ArrayList<String> characterNames = new ArrayList<>();
+    private MyListAdapter adapter;
+    private ArrayList<String> characterHeights = new ArrayList<>();
+    private ArrayList<String> characterMasses = new ArrayList<>();
+
+    private boolean isTablet() {
+        return getResources().getBoolean(R.bool.isTablet);
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        imageView = findViewById(R.id.imageView);
-        progressBar = findViewById(R.id.progressBar);
+        if (isTablet()) {
+            setContentView(R.layout.layout_b);
+        } else {
+            setContentView(R.layout.layout_a);
 
-        //asynctask
-        new CatImages().execute();
+        }
+
+        listView = findViewById(R.id.listView);
+        adapter = new MyListAdapter();
+        listView.setAdapter(adapter);
+
+
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            String name = characterNames.get(position);
+            String height = getHeightForCharacter(position);
+            String mass = getMassForCharacter(position);
+
+            Log.i("ListView Click", "Item clicked: " + name);
+
+            FrameLayout detailsContainer = findViewById(R.id.detailsContainer);
+            if (detailsContainer != null) {
+                // Tablet mode
+                FragmentUtils.displayDetailsFragment(getSupportFragmentManager(), name, height, mass, R.id.detailsContainer);
+            } else {
+                // Phone mode
+                Intent intent = new Intent(MainActivity.this, EmptyActivity.class);
+                intent.putExtra("name", name);
+                intent.putExtra("height", height);
+                intent.putExtra("mass", mass);
+                startActivity(intent);
+            }
+        });
+
+
+        new FetchCharactersTask().execute("https://akabab.github.io/starwars-api/api/all.json");
     }
 
-    //asynctask to download and display images cats
-    private class CatImages extends AsyncTask<String, Integer, Void> {
-        private Bitmap currentCatImage;
+    private String getHeightForCharacter(int position) {
+        //logic
+        return characterHeights.get(position);
+    }
+
+    private String getMassForCharacter(int position) {
+        //logic
+        return characterMasses.get(position);
+    }
+
+    private void parseJSONAndPopulateListView(String json) {
+        try {
+            JSONArray characters = new JSONArray(json);
+            for (int i = 0; i < characters.length(); i++) {
+                JSONObject character = characters.getJSONObject(i);
+                String name = character.optString("name", "N/A");
+                // Use optString and convert to String, to handle different types
+                String height = character.optString("height", "N/A");
+                String mass = character.optString("mass", "N/A");
+
+                Log.i("JSON Parsing", "Character parsed: Name=" + name + ", Height=" + height + ", Mass=" + mass);
+
+                characterNames.add(name);
+                characterHeights.add(height);
+                characterMasses.add(mass);
+            }
+            adapter.notifyDataSetChanged();
+        } catch (JSONException e) {
+            Log.e("JSON Parser", "Error parsing data: " + e.toString());
+        }
+    }
+
+
+    private class FetchCharactersTask extends AsyncTask<String, Void, String> {
 
         @Override
-        protected Void doInBackground(String... strings) {
-            while (true) {
+        protected String doInBackground(String... urls) {
+            try {
+                URL url = new URL(urls[0]);
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 try {
-                    //random cat image from json logic
-                    URL url = new URL("https://cataas.com/cat?json=true");
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestMethod("GET");
-                    InputStream inputStream = connection.getInputStream();
-                    String result = convertStreamToString(inputStream);
-                    JSONObject jsonObject = new JSONObject(result);
-
-                    //
-                    if (jsonObject.has("_id")) {
-                        String catImageId = jsonObject.getString("_id");
-                        String catImageUrl = "https://cataas.com/cat/" + catImageId;
-
-                        //Downlad of cat image
-                        InputStream in = new URL(catImageUrl).openStream();
-                        currentCatImage = BitmapFactory.decodeStream(in);
-                    } else {
-                        //error handling
-                        Log.e("CatImages", "No URL found in the JSON response");
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+                    while ((line = bufferedReader.readLine()) != null) {
+                        stringBuilder.append(line).append("\n");
                     }
-
-                    //update UI
-                    for (int i = 0; i < 100; i++) {
-                        publishProgress(i);
-                        try {
-                            Thread.sleep(30);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                            e.printStackTrace();
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    bufferedReader.close();
+                    return stringBuilder.toString();
+                } finally {
+                    urlConnection.disconnect();
                 }
+            } catch (Exception e) {
+                Log.e("ERROR", e.getMessage(), e);
+                return null;
             }
         }
+
 
         @Override
-        protected void onProgressUpdate(Integer... values) {
-            progressBar.setProgress(values[0]);
-            if (values[0] == 0) { //update image
-                imageView.setImageBitmap(currentCatImage);
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
+            if (response == null) {
+                Log.e("FetchCharactersTask", "Response is null - check API or network connectivity.");
+            } else {
+                Log.i("FetchCharactersTask", "Response received: " + response);
+                parseJSONAndPopulateListView(response);
             }
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            if (imageView != null && currentCatImage != null) {
-                imageView.setImageBitmap(currentCatImage);
-            }
-        }
-
-        //method to convert inputStream to String
-        private String convertStreamToString(InputStream is) {
-            java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-            return s.hasNext() ? s.next() : "";
         }
     }
-}
+
+        private class MyListAdapter extends BaseAdapter {
+
+            @Override
+            public int getCount() {
+                return characterNames.size();
+            }
+
+            @Override
+            public Object getItem(int position) {
+                return characterNames.get(position);
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return position;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                if (convertView == null) {
+                    convertView = LayoutInflater.from(MainActivity.this).inflate(android.R.layout.simple_list_item_1, parent, false);
+                }
+                TextView textView = convertView.findViewById(android.R.id.text1);
+                textView.setText(characterNames.get(position));
+                Log.i("ListAdapter", "View created for item: " + characterNames.get(position));
+                return convertView;
+            }
+
+
+
+        }
+    }
+

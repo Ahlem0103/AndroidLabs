@@ -25,6 +25,12 @@
     <string name="selected_row">Selected row: %1$d</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
+
+    <string name="height_format">Height: %s cm</string>
+    <string name="mass_format">Mass: %s kg</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
 
 

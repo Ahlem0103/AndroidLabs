@@ -25,4 +25,7 @@
     <string name="selected_row">Ligne selectionee: %1$d</string>
     <string name="delete">Supprimez</string>
     <string name="cancel">Annulez</string>
+
+    <string name="height_format">Longeur: %s cm</string>
+    <string name="mass_format">Masse: %s kg</string>
 </resources>
